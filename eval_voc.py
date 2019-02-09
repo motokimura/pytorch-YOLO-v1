@@ -183,7 +183,7 @@ if __name__ == '__main__':
     model.cuda()
     count = 0
     for image_path in tqdm(image_list):
-        result = predict_gpu(model,image_path,root_path='/home/xzh/data/VOCdevkit/VOC2012/allimgs/') #result[[left_up,right_bottom,class_name,image_path],]
+        result = predict_gpu(model,image_path,root_path='VOC_allimgs/') #result[[left_up,right_bottom,class_name,image_path],]
         for (x1,y1),(x2,y2),class_name,image_id,prob in result: #image_id is actually image_path
             preds[class_name].append([image_id,prob,x1,y1,x2,y2])
         # print(image_path)

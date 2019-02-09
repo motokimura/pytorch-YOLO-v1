@@ -12,12 +12,12 @@ from resnet_yolo import resnet50, resnet18
 from yoloLoss import yoloLoss
 from dataset import yoloDataset
 
-from visualize import Visualizer
+#from visualize import Visualizer
 import numpy as np
 
 use_gpu = torch.cuda.is_available()
 
-file_root = '/home/xzh/data/VOCdevkit/VOC2012/allimgs/'
+file_root = 'VOC_allimgs/'
 learning_rate = 0.001
 num_epochs = 50
 batch_size = 24
@@ -96,7 +96,7 @@ print('the batch_size is %d' % (batch_size))
 logfile = open('log.txt', 'w')
 
 num_iter = 0
-vis = Visualizer(env='xiong')
+#vis = Visualizer(env='xiong')
 best_test_loss = np.inf
 
 for epoch in range(num_epochs):
@@ -128,31 +128,32 @@ for epoch in range(num_epochs):
         
         pred = net(images)
         loss = criterion(pred,target)
-        total_loss += loss.data[0]
+        total_loss += loss.item()
         
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         if (i+1) % 5 == 0:
             print ('Epoch [%d/%d], Iter [%d/%d] Loss: %.4f, average_loss: %.4f' 
-            %(epoch+1, num_epochs, i+1, len(train_loader), loss.data[0], total_loss / (i+1)))
+            %(epoch+1, num_epochs, i+1, len(train_loader), loss.item(), total_loss / (i+1)))
             num_iter += 1
-            vis.plot_train_val(loss_train=total_loss/(i+1))
+            #vis.plot_train_val(loss_train=total_loss/(i+1))
 
     #validation
     validation_loss = 0.0
     net.eval()
     for i,(images,target) in enumerate(test_loader):
-        images = Variable(images,volatile=True)
-        target = Variable(target,volatile=True)
+        images = Variable(images)
+        target = Variable(target)
         if use_gpu:
             images,target = images.cuda(),target.cuda()
-        
-        pred = net(images)
+
+        with torch.no_grad():
+        	pred = net(images)
         loss = criterion(pred,target)
-        validation_loss += loss.data[0]
+        validation_loss += loss.item()
     validation_loss /= len(test_loader)
-    vis.plot_train_val(loss_val=validation_loss)
+    #vis.plot_train_val(loss_val=validation_loss)
     
     if best_test_loss > validation_loss:
         best_test_loss = validation_loss

@@ -84,9 +84,11 @@ def decoder(pred):
         probs = torch.zeros(1)
         cls_indexs = torch.zeros(1)
     else:
-        boxes = torch.cat(boxes,0) #(n,4)
-        probs = torch.cat(probs,0) #(n,)
-        cls_indexs = torch.cat(cls_indexs,0) #(n,)
+         #print("Before", boxes, probs, cls_indexs)
+         boxes = torch.cat(boxes,0) #(n,4)
+         probs = torch.cat(probs,0) #(n,)
+         cls_indexs = torch.stack(cls_indexs,0) #(n,)
+         #print("After", boxes, probs, cls_indexs)
     keep = nms(boxes,probs)
     return boxes[keep],cls_indexs[keep],probs[keep]
 
@@ -104,7 +106,8 @@ def nms(bboxes,scores,threshold=0.5):
     _,order = scores.sort(0,descending=True)
     keep = []
     while order.numel() > 0:
-        i = order[0]
+        #i = order[0]
+        i = order.item() if order.dim() == 0 else order[0]
         keep.append(i)
 
         if order.numel() == 1:
